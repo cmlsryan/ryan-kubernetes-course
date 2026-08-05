@@ -1,0 +1,41 @@
+{
+  "title": "Kubernetes 架構：從物流中心到第一個 Pod",
+  "description": "用分店、倉庫與工作人員的情境，理解 Cluster、Node、Pod、Container 與 Scheduler，並親手建立第一個 nginx Pod。",
+  "details": {
+    "intro": {
+      "text": "intro.md"
+    },
+    "steps": [
+      {
+        "title": "先理解 Kubernetes 在做什麼",
+        "text": "step1.md"
+      },
+      {
+        "title": "看見 Cluster 裡的 Node",
+        "text": "step2.md"
+      },
+      {
+        "title": "建立第一個 Pod",
+        "text": "step3.md"
+      },
+      {
+        "title": "確認 Pod 是否正常",
+        "text": "step4.md"
+      },
+      {
+        "title": "Pod 被安排到哪個 Node",
+        "text": "step5.md"
+      },
+      {
+        "title": "總整理與清除環境",
+        "text": "step6.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-1node"
+  }
+}
