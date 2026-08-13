@@ -1,62 +1,124 @@
-# Pod 被安排到哪個 Node？
+# 答案與解釋：需要統一的調度員
 
-## 情境
+## 正確答案：C
 
-貨物不會自己決定去哪座倉庫。
+**由總部調度員依照條件統一安排。**
 
-同樣地，新的 Pod 也不會自己選 Node。Kubernetes 中的 **Scheduler** 會替尚未被指派 Node 的 Pod，選擇一台符合條件的 Node。
+新的工作出現後，
 
-要查看 nginx Pod 被安排到哪裡，執行：
+不應該讓工作自己決定去哪裡，
 
-`kubectl get pods -o wide`{{exec}}
+也不應該讓各分店互相搶工作。
 
----
+而是需要一個統一的角色，
 
-## `-o wide` 是什麼？
-
-```text
--o       output，指定輸出格式
-wide     顯示比預設格式更多的欄位
-```
-
-今天最重要的新欄位是：
-
-```text
-NODE
-```
-
-你可能會看到：
-
-```text
-NAME    STATUS    NODE
-nginx   Running   controlplane
-```
-
-這代表 nginx Pod 被安排到 `controlplane` 這台 Node。
+根據目前各分店的狀況，
+判斷哪裡最適合接下這個工作。
 
 ---
 
-## 為什麼一定是 controlplane？
+## 選項解析
 
-這個練習環境只有一台可排程的 Node，因此 Scheduler 沒有其他 Node 可選。
+### A ✕ 工作自己選一間分店
 
-在多 Node Cluster 裡，Scheduler 會根據 Pod 的資源需求、Node 可提供的容量與排程規則，選擇符合條件的 Node。
+錯。
 
-不要簡化成：
+工作本身並不知道：
 
-> Scheduler 一定選即時 CPU 使用率最低的 Node。
+- 哪一間分店目前比較忙
+- 哪裡還有足夠資源
+- 哪些分店目前不能接工作
+- 有沒有其他安排條件
+
+所以不能讓工作自己隨便決定。
+
+### B ✕ 三間分店互相搶工作
+
+錯。
+
+如果讓每間分店自己搶工作，
+
+不但沒有共同的分配規則，
+
+還可能造成：
+
+- 某間分店工作太多
+- 其他分店幾乎沒事做
+- 整體資源分配失衡
+
+所以需要統一的安排機制。
+
+### C ✓ 由總部調度員依照條件統一安排
+
+對。
+
+總部調度員可以先了解各分店目前的條件，
+
+再替新的工作選擇適合的位置。
 
 ---
 
-## 現在的完整畫面
+# 正式名稱：Scheduler
 
-```text
-Cluster
-└── Node：controlplane
-    └── Pod：nginx
-        └── Container：nginx
-```
+在 Kubernetes 裡，
 
-請用自己的話回答：
+負責替「還沒有被安排位置的 Pod」
 
-> nginx Pod 為什麼會出現在 controlplane？
+選擇適合 Node 的元件，
+
+就叫做：
+
+## Scheduler
+
+可以先把它想成：
+
+**總部調度員 = Scheduler**
+
+---
+
+## Scheduler 會考慮什麼？
+
+Scheduler 並不是單純找：
+
+**「CPU 使用率最低的 Node」**
+
+就把 Pod 丟過去。
+
+它會綜合考慮：
+
+- Pod 的資源需求
+- Node 能提供的資源
+- Node 是否符合執行條件
+- Kubernetes 的排程規則
+
+最後才選出合適的 Node。
+
+---
+
+> 生活比喻：
+>
+> 新工作 = 等待安排的工作  
+> 分店 = 可以提供資源的地方  
+> 總部調度員 = Scheduler
+
+---
+
+## 接下來
+
+到目前為止，我們都先用生活情境理解。
+
+從下一頁開始，
+
+會正式使用 Kubernetes 的名稱來問問題。
+
+先記住目前看過的對應：
+
+- 整套管理環境 → **Cluster**
+- 提供運算資源的機器 → **Node**
+- 被 Kubernetes 安排的工作單位 → **Pod**
+- Pod 裡真正執行程式的地方 → **Container**
+- 負責替 Pod 選 Node → **Scheduler**
+
+下一題：
+
+**整套 Kubernetes 系統範圍，到底叫什麼？**
