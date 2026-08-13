@@ -1,34 +1,62 @@
 {
-  "title": "Kubernetes 架構：從物流中心到第一個 Pod",
-  "description": "用分店、倉庫與工作人員的情境，理解 Cluster、Node、Pod、Container 與 Scheduler，並親手建立第一個 nginx Pod。",
+  "title": "Kubernetes 基礎架構：從物流中心到第一個 Pod",
+  "description": "用分店、總部與工作單位的生活化情境，理解 Kubernetes、Cluster、Node、Pod、Container 與 Scheduler，最後實際操作 kubectl 並建立第一個 nginx Pod。",
   "details": {
     "intro": {
       "text": "intro.md"
     },
     "steps": [
       {
-        "title": "先理解 Kubernetes 在做什麼",
+        "title": "今天唯一目標：看懂 Kubernetes 如何管理與安排工作",
         "text": "step1.md"
       },
       {
-        "title": "看見 Cluster 裡的 Node",
+        "title": "100 家分店要怎麼管理？",
         "text": "step2.md"
       },
       {
-        "title": "建立第一個 Pod",
+        "title": "為什麼需要統一管理？",
         "text": "step3.md"
       },
       {
-        "title": "確認 Pod 是否正常",
+        "title": "新工作要去哪一間分店？",
         "text": "step4.md"
       },
       {
-        "title": "Pod 被安排到哪個 Node",
+        "title": "需要統一的調度員：Scheduler",
         "text": "step5.md"
       },
       {
-        "title": "總整理與清除環境",
+        "title": "正式名稱題一：整套 Kubernetes 系統叫什麼？",
         "text": "step6.md"
+      },
+      {
+        "title": "答案與解釋：Cluster 是整套系統範圍",
+        "text": "step7.md"
+      },
+      {
+        "title": "正式名稱題二：哪一個負責提供運算資源？",
+        "text": "step8.md"
+      },
+      {
+        "title": "答案與解釋：Node 是工作機器",
+        "text": "step9.md"
+      },
+      {
+        "title": "正式名稱題三：Kubernetes 排程的基本單位是什麼？",
+        "text": "step10.md"
+      },
+      {
+        "title": "答案與解釋：Kubernetes 安排的是 Pod",
+        "text": "step11.md"
+      },
+      {
+        "title": "先預測：要怎麼查看 Cluster 裡的 Node？",
+        "text": "step12.md"
+      },
+      {
+        "title": "答案與實際操作：查看 Cluster 裡的 Node",
+        "text": "step13.md"
       }
     ],
     "finish": {
