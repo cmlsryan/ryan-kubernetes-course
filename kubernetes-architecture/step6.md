@@ -1,42 +1,70 @@
-# 總整理與清除環境
+# 正式名稱題一：整套 Kubernetes 系統叫什麼？
 
-## 把正式名稱和物流比喻配對
+前面我們一直用：
 
-| Kubernetes | 物流比喻 | 真正技術意義 |
-|---|---|---|
-| Cluster | 整套物流系統 | Kubernetes 管理的整體系統範圍 |
-| Node | 倉庫或分店 | 加入 Cluster 的實體機或虛擬機 |
-| Pod | 一組被安排的工作 | Kubernetes 部署與排程的基本單位 |
-| Container | 工作人員或機器 | 真正執行程式的隔離環境 |
-| Scheduler | 總部調度員 | 替尚未指派 Node 的 Pod 選擇合適的 Node |
+- 總部
+- 分店
+- 工作
+- 調度員
 
----
+來理解 Kubernetes。
 
-## 清除今天建立的 Pod
+從這一題開始，
 
-執行：
-
-`kubectl delete pod nginx`{{exec}}
-
-再確認：
-
-`kubectl get pods`{{exec}}
-
-你可能會看到：
-
-```text
-No resources found in default namespace.
-```
-
-因為今天直接建立的是一個沒有 Deployment 等控制器管理的 Pod。
-
-刪除後，不會有控制器替它建立新的副本。
+我們改用 Kubernetes 真正的名稱來思考。
 
 ---
 
-## 最後用自己的話回答
+## 問題
 
-1. Kubernetes 為什麼不只是 Docker 的替代品？
-2. Cluster、Node、Pod、Container 的包含關係是什麼？
-3. Scheduler 負責什麼？
-4. `kubectl get pods -o wide` 比一般輸出多幫我們確認什麼？
+假設現在有一套 Kubernetes 環境。
+
+裡面包含：
+
+- 管理 Kubernetes 的元件
+- 多台提供資源的工作機器
+- 被安排執行的工作
+
+如果把這些東西全部算進來，
+
+**整套 Kubernetes 系統的範圍叫什麼？**
+
+---
+
+## A
+
+### Container
+
+---
+
+## B
+
+### Node
+
+---
+
+## C
+
+### Cluster
+
+---
+
+## 提示
+
+這一題問的是：
+
+**「整體範圍」**
+
+還是：
+
+**「整體裡面的其中一部分」？**
+
+---
+
+## 先不要往下找答案
+
+先自己判斷：
+
+**A、B、還是 C？**
+
+下一頁才公布答案與原因。
