@@ -1,254 +1,279 @@
-# 實作：Pod 被 Scheduler 安排到哪一台 Node？
+# Node 基本維運：先停止接收新的 Pod
 
-上一頁我們已經建立了 nginx Pod：
-
-```bash
-kubectl run nginx --image=nginx
-```
-
-也用：
-
-```bash
-kubectl get pods
-```
-
-確認它目前正在執行。
-
-但還有一個問題：
-
-**這個 Pod 到底被安排到哪一台 Node？**
-
----
-
-# 先回想一下
-
-建立 Pod 時，
-
-我們並沒有自己指定：
-
-> 「請把 nginx 放到某一台 Node。」
-
-那 Kubernetes 到底是怎麼決定位置的？
-
-前面學過：
-
-**Scheduler 會替 Pod 選擇適合的 Node。**
-
-現在我們直接驗證。
-
----
-
-# 查看更多 Pod 資訊
-
-直接點：
-
-`kubectl get pods -o wide`{{exec}}
-
-你可能會看到類似：
+前面我們已經知道：
 
 ```text
-NAME    READY   STATUS    RESTARTS   AGE   IP           NODE
-nginx   1/1     Running   0          ...   10.x.x.x     controlplane
+Cluster
+└── Node
+    └── Pod
 ```
 
----
+Node 是真正提供 CPU、記憶體與執行資源的工作機器。
 
-# 這次重點看 NODE
+現在開始進入第二個主題：
 
-找到：
+# Node 基本維運
 
-```text
-NODE
-```
-
-這一欄代表：
-
-**這個 Pod 目前被安排在哪一台 Node 上。**
+假設今天有一台 Node 需要進行維護。
 
 例如：
 
-```text
-controlplane
-```
+- 準備更新系統
+- 準備檢查硬體
+- 準備重新啟動
+- 管理員暫時不希望新的 Pod 被排到這台 Node
 
-表示 nginx Pod 現在執行在 `controlplane` 這台 Node。
+但目前已經在上面執行的 Pod，
+
+**暫時不需要立刻趕走。**
+
+這時候該怎麼做？
 
 ---
 
-# 把 Scheduler 串回來
+# 先想一下
 
-剛剛整個流程其實是：
+下面哪一種處理方式比較合理？
+
+### A
+
+直接把 Node 關機。
+
+### B
+
+讓原本的 Pod 繼續執行，
+
+但暫時不要再安排新的 Pod 到這台 Node。
+
+### C
+
+把 Cluster 裡所有 Pod 全部刪掉。
+
+---
+
+# 答案：B
+
+有些維護工作不需要立刻停止目前正在執行的 Pod。
+
+我們只是希望：
+
+> **從現在開始，不要再把新的 Pod 排到這台 Node。**
+
+Kubernetes 裡負責這件事情的指令叫：
+
+```bash
+kubectl cordon
+```
+
+---
+
+# Cordon 是什麼？
+
+可以先記成：
 
 ```text
-建立 nginx Pod
-        ↓
-Pod 還沒有執行位置
-        ↓
-Scheduler 幫 Pod 選 Node
-        ↓
-Pod 被安排到 Node
-        ↓
-Container 開始執行 nginx
+cordon
+=
+Node 暫停接收新的 Pod
 ```
+
+但有一個非常重要的地方：
+
+**原本已經在 Node 上執行的 Pod 不會因為 cordon 自動被刪除或趕走。**
 
 所以：
 
 ```text
-Scheduler
-   ↓
-幫 Pod 選 Node
+Cordon 前
+Node
+├── Pod A
+└── Pod B
+```
+
+執行 cordon 後：
+
+```text
+Node（不再接新的 Pod）
+├── Pod A  ← 繼續執行
+└── Pod B  ← 繼續執行
 ```
 
 ---
 
-# 現在完整結構就看得到了
+# 先查看目前的 Node
 
-假設剛才 `NODE` 欄顯示：
+直接點：
+
+`kubectl get nodes`{{exec}}
+
+找到目前 Node 的名稱。
+
+在 Killercoda 裡通常會看到：
 
 ```text
-controlplane
+NAME           STATUS   ROLES
+controlplane   Ready    control-plane
 ```
 
-那現在可以畫成：
+---
+
+# 現在實際 Cordon
+
+直接點：
+
+`kubectl cordon controlplane`{{exec}}
+
+如果成功，通常會看到：
 
 ```text
-Cluster
-└── Node: controlplane
-    └── Pod: nginx
-        └── Container: nginx
+node/controlplane cordoned
+```
+
+---
+
+# 再查看一次 Node
+
+直接點：
+
+`kubectl get nodes`{{exec}}
+
+這次注意：
+
+```text
+STATUS
+```
+
+你可能會看到：
+
+```text
+Ready,SchedulingDisabled
+```
+
+---
+
+# SchedulingDisabled 是什麼？
+
+它代表：
+
+**這台 Node 本身仍然是 Ready，**
+
+但是：
+
+**Scheduler 不應該再把一般新的 Pod 排到這台 Node。**
+
+所以：
+
+```text
+Ready
+=
+Node 本身目前可用
+
+SchedulingDisabled
+=
+暫停接收新的 Pod
+```
+
+兩個可以同時存在：
+
+```text
+Ready,SchedulingDisabled
+```
+
+這不是矛盾。
+
+---
+
+# 很重要：Cordon 不等於關機
+
+Cordon 之後：
+
+- Node 沒有被關掉
+- Kubernetes 沒有把 Node 刪掉
+- 原本的 Pod 不會自動消失
+- 只是停止一般新的 Pod 被排進來
+
+所以不要把 cordon 理解成：
+
+```text
+停止 Node
+```
+
+比較精確的是：
+
+```text
+停止新的排程進入這台 Node
 ```
 
 ---
 
 # 快速確認
 
-### Q1
-
-整套 Kubernetes 管理環境叫什麼？
-
-**Cluster**
-
-### Q2
-
-真正提供 CPU、記憶體與執行資源的是什麼？
-
-**Node**
-
-### Q3
-
-Scheduler 安排的是什麼？
-
-**Pod**
-
-### Q4
-
-真正執行 nginx 程式的是什麼？
-
-**Container**
-
----
-
-# 再看一次目前 Pod
-
-直接點：
-
-`kubectl get pods -o wide`{{exec}}
-
-這次請自己找出：
-
-- Pod 名稱
-- Pod 狀態
-- Pod 所在的 Node
-
----
-
-# 最後清除練習資源
-
-這個 nginx Pod 是我們剛剛為了練習建立的。
-
-現在把它刪掉：
-
-`kubectl delete pod nginx`{{exec}}
-
-如果成功，會看到類似：
+假設某台 Node 上已經有：
 
 ```text
-pod "nginx" deleted
+Pod A
+Pod B
+Pod C
 ```
 
----
+現在執行：
 
-# 確認 Pod 已經刪除
-
-再點：
-
-`kubectl get pods`{{exec}}
-
-如果沒有其他 Pod，
-
-你可能會看到：
-
-```text
-No resources found
+```bash
+kubectl cordon node01
 ```
 
-代表剛才的 nginx Pod 已經被清除。
+最合理的結果是哪一個？
 
----
+### A
 
-# 今天這一段你真的做過了
+Pod A、B、C 全部立刻被刪除。
 
-不是只背名詞。
+### B
 
-你已經實際操作：
+Pod A、B、C 繼續執行，
 
-```text
-kubectl get nodes
-        ↓
-查看 Node
+但新的 Pod 暫時不要再排到這台 Node。
 
-kubectl run nginx --image=nginx
-        ↓
-建立 Pod
+### C
 
-kubectl get pods
-        ↓
-查看 Pod 狀態
+整台 Node 立刻關機。
 
-kubectl get pods -o wide
-        ↓
-查看 Pod 被安排到哪台 Node
+## 答案：B
 
-kubectl delete pod nginx
-        ↓
-刪除練習 Pod
-```
-
----
-
-# 最重要的一張圖
-
-```text
-Cluster
-└── Node
-    └── Pod
-        └── Container
-
-Scheduler
-   ↓
-幫 Pod 選 Node
-```
+這就是 cordon 最重要的概念。
 
 ---
 
 # 下一步
 
-到這裡，Kubernetes 基礎架構就已經從：
+但是如果今天不是：
 
-**生活比喻 → 正式名稱 → 真實指令 → 真實 Output**
+> 「先不要接新的工作」
 
-全部串起來了。
+而是：
 
-下一個主題就可以開始進入：
+> **「我要真的維修這台 Node，所以連原本的工作也希望先移走。」**
 
-**Node 基本維運實作。**
+那只做 cordon 就不夠了。
+
+下一步我們會學：
+
+```bash
+kubectl drain
+```
+
+比較：
+
+```text
+cordon
+→ 不再接新的 Pod
+→ 原本的 Pod 繼續跑
+
+drain
+→ 準備維護 Node
+→ 嘗試把可驅逐的 Pod 移出 Node
+```
+
+下一頁直接實際比較：
+
+**cordon 和 drain 到底差在哪裡。**
