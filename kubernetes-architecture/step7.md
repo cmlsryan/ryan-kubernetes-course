@@ -1,26 +1,25 @@
-# 先實際看 Cluster 裡有哪些 Node
+# 實作：看看 Cluster 裡有哪些 Node
 
 前面我們已經知道：
 
-- Cluster 是整套 Kubernetes 管理環境
-- Node 是提供 CPU、記憶體與執行資源的工作機器
-- Pod 會被安排到某台 Node 上執行
+- Cluster = 整套 Kubernetes 管理環境
+- Node = 提供 CPU、記憶體等資源的工作機器
 
-現在不要只記概念。
+現在不要只背定義。
 
-直接來看看：
+直接看看：
 
-**這個 Cluster 裡目前有哪些 Node？**
+**我們現在這個 Cluster 裡，到底有哪些 Node？**
 
 ---
 
-## 問題
+# 先預測
 
-如果管理員想確認：
+如果管理員想查看：
 
-- 目前有幾台 Node
-- Node 的名稱是什麼
-- Node 現在是否正常
+- Cluster 裡有幾台 Node
+- Node 的名稱
+- Node 目前的狀態
 
 應該使用哪一個指令？
 
@@ -42,21 +41,17 @@ kubectl run nginx --image=nginx
 kubectl delete pod nginx
 ```
 
----
+先自己選 A、B 或 C。
 
-## 先想一下
-
-先看三個動作：
+提示：
 
 - `get` = 查看
 - `run` = 建立
 - `delete` = 刪除
 
-我們現在的需求是：
+我們現在要做的是：
 
 **查看 Node。**
-
-先自己選 A、B 或 C。
 
 ---
 
@@ -66,56 +61,23 @@ kubectl delete pod nginx
 kubectl get nodes
 ```
 
-這個指令可以查看目前 Cluster 裡有哪些 Node。
-
----
-
-## 為什麼？
-
-### A ✓ `kubectl get nodes`
-
-`get` 代表查看。
-
-`nodes` 代表要查看的資源是 Node。
-
-所以：
+指令可以拆成：
 
 ```text
 kubectl + get + nodes
-Kubernetes 工具 + 查看 + Node
+
+kubectl = 和 Kubernetes 溝通
+get     = 查看
+nodes   = Node 資源
 ```
 
 ---
 
-### B × `kubectl run nginx --image=nginx`
+# 現在直接操作
 
-這個指令是用來：
+直接點下面的指令：
 
-**建立一個 nginx Pod。**
-
-不是查看 Node。
-
-等等我們會真的操作它。
-
----
-
-### C × `kubectl delete pod nginx`
-
-這個指令是用來：
-
-**刪除名稱叫 nginx 的 Pod。**
-
-也不是查看 Node。
-
----
-
-# 現在實際操作
-
-請在右邊終端機輸入：
-
-```bash
-kubectl get nodes
-```
+`kubectl get nodes`{{exec}}
 
 執行後，你可能會看到類似：
 
@@ -124,13 +86,15 @@ NAME           STATUS   ROLES           AGE   VERSION
 controlplane   Ready    control-plane   ...   ...
 ```
 
-先觀察三個地方。
-
 ---
+
+# 看懂 Output
+
+這一章先看三個重點就夠了。
 
 ## NAME
 
-代表 Node 的名稱。
+Node 的名稱。
 
 例如：
 
@@ -138,7 +102,7 @@ controlplane   Ready    control-plane   ...   ...
 controlplane
 ```
 
-就是這台 Node 的名字。
+代表這台 Node 名稱叫做 `controlplane`。
 
 ---
 
@@ -152,9 +116,9 @@ controlplane
 Ready
 ```
 
-代表 Kubernetes 目前判斷這台 Node 是正常可用的。
+代表 Kubernetes 目前判斷這台 Node 處於可用狀態。
 
-目前先簡單記：
+先記：
 
 ```text
 Ready = Node 目前可用
@@ -162,32 +126,46 @@ Ready = Node 目前可用
 
 ---
 
-## 小提醒
+## ROLES
 
-`Ready` 不代表：
+你可能會看到：
 
-**任何 Pod 都一定可以被排進這台 Node。**
+```text
+control-plane
+```
 
-因為真正排程時還會考慮：
+代表這台 Node 同時負責 Kubernetes 的管理功能。
 
-- Pod 需要多少 CPU
-- Pod 需要多少記憶體
-- Node 還剩多少資源
-- 其他排程條件
+目前先知道即可，
 
-這些後面再學。
-
-現在知道：
-
-**Ready 代表 Node 本身目前處於可用狀態。**
-
-就夠了。
+後面學 Node 維運時會再更詳細說明。
 
 ---
 
-# 剛剛的概念現在真的看到了
+# 小提醒
 
-前面我們學的是：
+`Ready` 不代表：
+
+**任何 Pod 都一定可以被排到這台 Node。**
+
+真正排程時，
+
+Kubernetes 還會考慮：
+
+- Pod 需要多少資源
+- Node 還剩多少資源
+- 排程條件
+- 其他限制
+
+這裡先記住最基本的：
+
+> **Ready = Kubernetes 目前判斷這台 Node 可以正常參與 Cluster。**
+
+---
+
+# 剛剛我們真的看到 Node 了
+
+前面只是概念：
 
 ```text
 Cluster
@@ -196,44 +174,40 @@ Cluster
 
 現在透過：
 
-```bash
-kubectl get nodes
-```
+`kubectl get nodes`{{exec}}
 
-我們真的看到 Cluster 裡面的 Node。
+我們真的從 Kubernetes 裡把 Node 查了出來。
 
-所以不要只把 Kubernetes 當成名詞背。
+所以接下來會繼續按照：
 
-之後會盡量按照：
-
-**概念 → 指令 → 實際結果**
+**學概念 → 馬上操作 → 看真實 Output**
 
 來學。
 
 ---
 
-# 下一步：真的建立一個 Pod
+# 下一步：建立第一個 Pod
 
 現在我們已經：
 
 - 知道 Cluster 是什麼
 - 知道 Node 是什麼
-- 用指令看到了 Node
+- 真的查看過 Node
 
-接下來要建立第一個真正的工作：
+接下來要在 Kubernetes 裡建立第一個工作：
 
 **nginx Pod**
 
-下一頁會操作：
+下一頁會直接操作：
 
 ```bash
 kubectl run nginx --image=nginx
 ```
 
-建立之後，再使用：
+然後再用：
 
 ```bash
 kubectl get pods
 ```
 
-確認 Pod 有沒有成功建立。
+確認 Pod 到底有沒有成功執行。
