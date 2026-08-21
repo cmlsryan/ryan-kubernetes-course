@@ -1,81 +1,254 @@
-# 答案與解釋：Node 是工作機器
+# 實作：Pod 被 Scheduler 安排到哪一台 Node？
 
-## 正確答案：A
+上一頁我們已經建立了 nginx Pod：
 
-**Node**
+```bash
+kubectl run nginx --image=nginx
+```
 
-Node 是加入 Kubernetes Cluster 的工作機器。
+也用：
 
-它可以是：
+```bash
+kubectl get pods
+```
 
-- 實體機
-- 虛擬機
-- 雲端主機
+確認它目前正在執行。
 
-Node 會提供：
+但還有一個問題：
 
-- CPU
-- 記憶體
-- 執行資源
-
-讓 Pod 可以在上面運作。
+**這個 Pod 到底被安排到哪一台 Node？**
 
 ---
 
-## 選項解析
+# 先回想一下
 
-### A ✓ Node
+建立 Pod 時，
 
-真正提供運算資源的機器。
+我們並沒有自己指定：
 
-### B × Pod
+> 「請把 nginx 放到某一台 Node。」
 
-Pod 是被安排到 Node 上執行的部署與排程基本單位。
+那 Kubernetes 到底是怎麼決定位置的？
 
-它本身不是一台機器。
+前面學過：
 
-### C × Scheduler
+**Scheduler 會替 Pod 選擇適合的 Node。**
 
-Scheduler 會選擇適合的 Node，
-
-但 Scheduler 本身不是 Pod 真正執行的位置。
+現在我們直接驗證。
 
 ---
 
-## 結構再看一次
+# 查看更多 Pod 資訊
+
+直接點：
+
+`kubectl get pods -o wide`{{exec}}
+
+你可能會看到類似：
 
 ```text
-Cluster
-└── Node
-    ├── Pod
-    └── Pod
+NAME    READY   STATUS    RESTARTS   AGE   IP           NODE
+nginx   1/1     Running   0          ...   10.x.x.x     controlplane
 ```
 
 ---
 
-## 生活對應
+# 這次重點看 NODE
 
-可以把 Node 想成：
+找到：
 
-**一間真正有場地、設備、電力與人力資源的分店。**
+```text
+NODE
+```
 
-生活比喻：
+這一欄代表：
 
-**一間分店 = Node**
+**這個 Pod 目前被安排在哪一台 Node 上。**
 
-正式概念：
+例如：
 
-**Node = 加入 Cluster、提供資源的工作機器**
+```text
+controlplane
+```
+
+表示 nginx Pod 現在執行在 `controlplane` 這台 Node。
 
 ---
 
-## 下一題
+# 把 Scheduler 串回來
 
-現在我們知道：
+剛剛整個流程其實是：
 
-- Cluster 是整體範圍
-- Node 是提供資源的工作機器
+```text
+建立 nginx Pod
+        ↓
+Pod 還沒有執行位置
+        ↓
+Scheduler 幫 Pod 選 Node
+        ↓
+Pod 被安排到 Node
+        ↓
+Container 開始執行 nginx
+```
 
-那 Kubernetes 真正「建立、部署、排程」的基本單位，
+所以：
 
-到底是 **Container、Pod，還是 Cluster**？
+```text
+Scheduler
+   ↓
+幫 Pod 選 Node
+```
+
+---
+
+# 現在完整結構就看得到了
+
+假設剛才 `NODE` 欄顯示：
+
+```text
+controlplane
+```
+
+那現在可以畫成：
+
+```text
+Cluster
+└── Node: controlplane
+    └── Pod: nginx
+        └── Container: nginx
+```
+
+---
+
+# 快速確認
+
+### Q1
+
+整套 Kubernetes 管理環境叫什麼？
+
+**Cluster**
+
+### Q2
+
+真正提供 CPU、記憶體與執行資源的是什麼？
+
+**Node**
+
+### Q3
+
+Scheduler 安排的是什麼？
+
+**Pod**
+
+### Q4
+
+真正執行 nginx 程式的是什麼？
+
+**Container**
+
+---
+
+# 再看一次目前 Pod
+
+直接點：
+
+`kubectl get pods -o wide`{{exec}}
+
+這次請自己找出：
+
+- Pod 名稱
+- Pod 狀態
+- Pod 所在的 Node
+
+---
+
+# 最後清除練習資源
+
+這個 nginx Pod 是我們剛剛為了練習建立的。
+
+現在把它刪掉：
+
+`kubectl delete pod nginx`{{exec}}
+
+如果成功，會看到類似：
+
+```text
+pod "nginx" deleted
+```
+
+---
+
+# 確認 Pod 已經刪除
+
+再點：
+
+`kubectl get pods`{{exec}}
+
+如果沒有其他 Pod，
+
+你可能會看到：
+
+```text
+No resources found
+```
+
+代表剛才的 nginx Pod 已經被清除。
+
+---
+
+# 今天這一段你真的做過了
+
+不是只背名詞。
+
+你已經實際操作：
+
+```text
+kubectl get nodes
+        ↓
+查看 Node
+
+kubectl run nginx --image=nginx
+        ↓
+建立 Pod
+
+kubectl get pods
+        ↓
+查看 Pod 狀態
+
+kubectl get pods -o wide
+        ↓
+查看 Pod 被安排到哪台 Node
+
+kubectl delete pod nginx
+        ↓
+刪除練習 Pod
+```
+
+---
+
+# 最重要的一張圖
+
+```text
+Cluster
+└── Node
+    └── Pod
+        └── Container
+
+Scheduler
+   ↓
+幫 Pod 選 Node
+```
+
+---
+
+# 下一步
+
+到這裡，Kubernetes 基礎架構就已經從：
+
+**生活比喻 → 正式名稱 → 真實指令 → 真實 Output**
+
+全部串起來了。
+
+下一個主題就可以開始進入：
+
+**Node 基本維運實作。**
