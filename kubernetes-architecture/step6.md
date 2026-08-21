@@ -1,70 +1,94 @@
-# 正式名稱題一：整套 Kubernetes 系統叫什麼？
+# 把生活比喻換成 Kubernetes 真正名稱
 
 前面我們一直用：
 
-- 總部
+- 整套公司
 - 分店
 - 工作
 - 調度員
 
 來理解 Kubernetes。
 
-從這一題開始，
+現在不用再繞比喻了。
 
-我們改用 Kubernetes 真正的名稱來思考。
+把剛剛的概念正式換成 Kubernetes 名稱：
 
----
-
-## 問題
-
-假設現在有一套 Kubernetes 環境。
-
-裡面包含：
-
-- 管理 Kubernetes 的元件
-- 多台提供資源的工作機器
-- 被安排執行的工作
-
-如果把這些東西全部算進來，
-
-**整套 Kubernetes 系統的範圍叫什麼？**
+| 前面的生活概念 | Kubernetes 正式名稱 |
+|---|---|
+| 整套管理環境 | Cluster |
+| 提供 CPU、記憶體的工作機器 | Node |
+| 被 Kubernetes 建立、部署、排程的工作單位 | Pod |
+| Pod 裡真正執行程式的部分 | Container |
+| 幫 Pod 選擇 Node 的角色 | Scheduler |
 
 ---
 
-## A
+## 先快速確認 3 題
 
-### Container
+不用每一題都等到下一頁公布答案。
+
+先自己想，再往下看。
+
+### Q1
+
+整套 Kubernetes 管理環境叫什麼？
+
+A. Node  
+B. Cluster  
+C. Pod
+
+### Q2
+
+真正提供 CPU、記憶體等資源的工作機器叫什麼？
+
+A. Node  
+B. Pod  
+C. Scheduler
+
+### Q3
+
+Kubernetes 建立、部署並安排到某台 Node 的基本單位是什麼？
+
+A. Container  
+B. Pod  
+C. Cluster
 
 ---
 
-## B
+# 答案
 
-### Node
+### Q1：B — Cluster
+
+Cluster 是整套 Kubernetes 管理環境。
+
+它裡面可以包含多台 Node，以及在 Node 上執行的 Pod。
+
+### Q2：A — Node
+
+Node 是加入 Cluster 的工作機器。
+
+它可以是：
+
+- 實體機
+- 虛擬機
+- 雲端主機
+
+Node 提供 CPU、記憶體與執行環境。
+
+### Q3：B — Pod
+
+Kubernetes 排程的基本單位是 Pod。
+
+Scheduler 會替 Pod 選擇適合的 Node。
+
+真正執行應用程式的，則是 Pod 裡面的 Container。
 
 ---
 
-## C
+## 最重要的結構
 
-### Cluster
-
----
-
-## 提示
-
-這一題問的是：
-
-**「整體範圍」**
-
-還是：
-
-**「整體裡面的其中一部分」？**
-
----
-
-## 先不要往下找答案
-
-先自己判斷：
-
-**A、B、還是 C？**
-
-下一頁才公布答案與原因。
+```text
+Cluster
+└── Node
+    └── Pod
+        └── Container
