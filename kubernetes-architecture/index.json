@@ -57,6 +57,22 @@
       {
         "title": "答案與實際操作：查看 Cluster 裡的 Node",
         "text": "step13.md"
+      },
+      {
+        "title": "Pod 異常排查②：CrashLoopBackOff",
+        "text": "step14.md"
+      },
+      {
+        "title": "Pod 異常排查③：Pending",
+        "text": "step15.md"
+      },
+      {
+        "title": "Pod 排錯工具：get、describe、logs",
+        "text": "step16.md"
+      },
+      {
+        "title": "Pod 異常排查：綜合實戰",
+        "text": "step17.md"
       }
     ],
     "finish": {
